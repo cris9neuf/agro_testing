@@ -1,0 +1,30 @@
+body {
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1em;
+  background: #f9f9f9;
+}
+
+h1, h2 {
+  color: #333;
+}
+
+input, button, select {
+  font-size: 1em;
+  padding: 0.5em;
+  margin: 0.5em 0;
+  width: 100%;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background: #45a049;
+}
