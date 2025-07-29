@@ -1,0 +1,2940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agro Gestión app</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary-color: #2E7D32;
+      --secondary-color: #4CAF50;
+      --accent-color: #FF9800;
+      --danger-color: #f44336;
+      --info-color: #2196F3;
+      --light-gray: #f5f5f5;
+      --dark-gray: #333;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #f4f4f4; 
+      margin: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 15px;
+    }
+    
+    h1, h2 { 
+      background-color: var(--primary-color); 
+      color: white; 
+      padding: 12px 15px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .section { 
+      background: white; 
+      padding: 20px; 
+      margin-bottom: 25px; 
+      border-radius: 10px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
+    }
+    
+    .entry { 
+      margin: 15px 0; 
+      border: 1px solid #e0e0e0; 
+      padding: 15px; 
+      border-radius: 8px; 
+      background: #fafafa; 
+      position: relative;
+    }
+    
+    label { 
+      font-weight: 600; 
+      display: block; 
+      margin-top: 10px;
+      color: var(--dark-gray);
+    }
+    
+    input, select, textarea { 
+      width: 100%; 
+      padding: 10px; 
+      margin-top: 6px; 
+      margin-bottom: 12px; 
+      border: 1px solid #ddd; 
+      border-radius: 6px; 
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border 0.3s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--secondary-color);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    }
+    
+    .btn { 
+      padding: 10px 18px; 
+      margin: 8px 8px 12px 0; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn i {
+      font-size: 1rem;
+    }
+    
+    .btn-add { 
+      background: var(--info-color); 
+      color: white; 
+    }
+    
+    .btn-add:hover {
+      background: #0b7dda;
+    }
+    
+    .btn-delete { 
+      background: var(--danger-color); 
+      color: white; 
+    }
+    
+    .btn-delete:hover {
+      background: #d32f2f;
+    }
+    
+    .btn-export { 
+      background: var(--primary-color); 
+      color: white; 
+    }
+    
+    .btn-export:hover {
+      background: #1b5e20;
+    }
+    
+    .btn-export-excel { 
+      background: var(--accent-color); 
+      color: white; 
+    }
+    
+    .btn-export-excel:hover {
+      background: #e68a00;
+    }
+    
+    .btn-secondary {
+      background: #757575;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #616161;
+    }
+    
+    .clearfix::after { 
+      content: ""; 
+      clear: both; 
+      display: table; 
+    }
+    
+    #inicio, #intro-screen {
+      background: white;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+      text-align: center;
+      max-width: 700px;
+      margin: 20px auto;
+    }
+    
+    #inicio h1 {
+      font-size: 2.4em;
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+    
+    #inicio p, #intro-screen p {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+    
+    #inicio button, #intro-screen button {
+      background-color: var(--primary-color);
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: 600;
+      margin: 10px 5px;
+    }
+    
+    #inicio button:hover, #intro-screen button:hover {
+      background-color: #1b5e20;
+    }
+    
+    #btn-volver {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      width: 45px;
+      height: 45px;
+      background-color: var(--dark-gray);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      line-height: 45px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      user-select: none;
+      z-index: 1000;
+      display: none;
+    }
+    
+    #btn-volver:hover {
+      background-color: #212121;
+      transform: scale(1.05);
+    }
+    
+    #menu-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 1100;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      border: none;
+    }
+    
+    #menu-toggle span {
+      display: block;
+      width: 24px;
+      height: 3px;
+      background: var(--primary-color);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    
+    #menu-toggle.open span:nth-child(1) {
+      transform: translateY(9px) rotate(45deg);
+    }
+    
+    #menu-toggle.open span:nth-child(2) {
+      opacity: 0;
+    }
+    
+    #menu-toggle.open span:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+    
+    #menu {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-radius: 10px;
+      padding: 10px 0;
+      z-index: 1090;
+      display: none;
+      width: 250px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    #menu a {
+      display: flex;
+      align-items: center;
+      color: var(--dark-gray);
+      text-decoration: none;
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      gap: 10px;
+    }
+    
+    #menu a i {
+      width: 20px;
+      text-align: center;
+      color: var(--primary-color);
+    }
+    
+    #menu a:last-child {
+      border-bottom: none;
+    }
+    
+    #menu a:hover {
+      background: #f5f5f5;
+      color: var(--primary-color);
+    }
+    
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    .foto-preview {
+      width: 100px;
+      height: 100px;
+      margin: 5px 10px 5px 0;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #ddd;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .foto-preview:hover {
+      transform: scale(1.05);
+    }
+    
+    .fotos-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+    
+    .foto-item {
+      position: relative;
+    }
+    
+    .foto-item .btn-delete {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 25px;
+      height: 25px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    
+    .icon-presencia, .icon-ausencia {
+      font-size: 1.8em;
+      margin-right: 15px;
+      cursor: pointer;
+      user-select: none;
+      opacity: 0.3;
+      vertical-align: middle;
+      transition: all 0.2s;
+    }
+    
+    .icon-presencia.active, .icon-ausencia.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    
+    .form-row > div {
+      flex: 1;
+    }
+    
+    .stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+      font-size: 1rem;
+    }
+    
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--dark-gray);
+    }
+    
+    .stat-card .subtext {
+      font-size: 0.8rem;
+      color: #757575;
+    }
+    
+    .search-container {
+      margin-bottom: 15px;
+    }
+    
+    .search-container input {
+      max-width: 300px;
+      padding-left: 35px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+      background-size: 16px;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+    
+    .tab:hover:not(.active) {
+      background: #f5f5f5;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 5px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease, fadeOut 0.5s ease 3s forwards;
+    }
+    
+    .notification.error {
+      background: var(--danger-color);
+    }
+    
+    .notification.success {
+      background: var(--primary-color);
+    }
+    
+    .notification.warning {
+      background: var(--accent-color);
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .calendar-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #757575;
+      pointer-events: none;
+    }
+    
+    .date-input-container {
+      position: relative;
+    }
+    
+    .select-dropdown {
+      position: relative;
+    }
+    
+    .select-dropdown select {
+      appearance: none;
+      padding-right: 30px;
+    }
+    
+    .select-arrow {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #757575;
+      pointer-events: none;
+    }
+    
+    .file-input-container {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-input-container input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-input-label {
+      display: block;
+      padding: 10px;
+      background: #f5f5f5;
+      border: 1px dashed #ddd;
+      border-radius: 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .file-input-label:hover {
+      background: #e0e0e0;
+      border-color: #bdbdbd;
+    }
+    
+    .file-input-label i {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 5px;
+      color: var(--primary-color);
+    }
+
+    /* Estilos para los gráficos */
+    .chart-container {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Estilos para el mapa */
+    #map-container {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+    }
+    
+    /* Estilos para el Gantt */
+    .gantt-task {
+      position: absolute;
+      height: 30px;
+      border-radius: 4px;
+      padding: 5px;
+      color: white;
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    
+    .gantt-task:hover {
+      z-index: 100;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    
+    .gantt-header {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .gantt-header-day {
+      flex: 1;
+      text-align: center;
+      border-right: 1px solid #eee;
+    }
+    
+    .gantt-row {
+      position: relative;
+      height: 40px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+    }
+    
+    .gantt-row-label {
+      width: 200px;
+      padding-right: 10px;
+      font-weight: 500;
+    }
+    
+    .gantt-row-bars {
+      flex: 1;
+      position: relative;
+      height: 100%;
+    }
+    
+    .labor-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f9f9f9;
+    }
+    
+    .labor-card h3 {
+      margin-top: 0;
+      color: var(--primary-color);
+    }
+    
+    .labor-card-actions {
+      margin-top: 10px;
+      text-align: right;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 10px;
+      }
+      
+      .section {
+        padding: 15px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      h2 {
+        font-size: 1.3rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .btn-export, .btn-export-excel {
+        float: none;
+        width: 100%;
+        margin: 5px 0;
+      }
+      
+      #btn-volver {
+        display: block;
+      }
+      
+      #menu-toggle {
+        display: flex;
+      }
+      
+      .foto-preview {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .stats-container {
+        flex-direction: column;
+      }
+
+      /* Ajustes para móvil en gráficos */
+      .chart-container {
+        padding: 10px;
+      }
+
+      /* Ajustes para móvil en mapa */
+      #map-container {
+        height: 300px;
+      }
+      
+      /* Ajustes para móvil en Gantt */
+      .gantt-row-label {
+        width: 120px;
+        font-size: 0.8rem;
+      }
+      
+      .gantt-task {
+        font-size: 0.7rem;
+        padding: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="intro-screen">
+  <h1 style="font-size: 2.8em; color: var(--primary-color); margin-bottom: 0.3em;">Agro Gestión Pro</h1>
+  <h3 style="color: #555; font-weight: normal; margin-top: 0; margin-bottom: 1.5em;">
+    <i class="fas fa-leaf"></i> Tu aliado en la gestión agrícola digital
+  </h3>
+  
+  <div class="stats-container">
+    <div class="stat-card">
+      <h3>Registros Diarios</h3>
+      <div class="value">0</div>
+      <div class="subtext">Hoy</div>
+    </div>
+    <div class="stat-card">
+      <h3>Actividades</h3>
+      <div class="value">11</div>
+      <div class="subtext">Módulos</div>
+    </div>
+    <div class="stat-card">
+      <h3>Fotos</h3>
+      <div class="value">0</div>
+      <div class="subtext">Almacenadas</div>
+    </div>
+  </div>
+  
+  <p><strong><i class="fas fa-question-circle"></i> ¿Para qué sirve?</strong><br> 
+  Para registrar y controlar de forma sencilla y eficiente tus labores agrícolas: monitoreo de plagas, riegos, podas, cosechas, maquinarias, análisis y más.</p>
+  
+  <p><strong><i class="fas fa-check-circle"></i> Ventajas</strong><br>
+    <i class="fas fa-check" style="color: var(--primary-color);"></i> Acceso rápido y ordenado a tus registros<br>
+    <i class="fas fa-check" style="color: var(--primary-color);"></i> Registro de fotos y comentarios para mejor trazabilidad<br>
+    <i class="fas fa-check" style="color: var(--primary-color);"></i> Exporta tus datos en PDF y Excel para reportes y certificaciones<br>
+    <i class="fas fa-check" style="color: var(--primary-color);"></i> App diseñada para uso en campo, optimizada para móvil<br>
+    <i class="fas fa-check" style="color: var(--primary-color);"></i> Datos almacenados localmente (no se pierden al cerrar)
+  </p>
+  
+  <p><strong><i class="fas fa-bullseye"></i> Propósito</strong><br>
+  Facilitar la gestión agrícola digital para mejorar el control, la toma de decisiones y apoyar la certificación GlobalGAP.</p>
+  
+  <div style="margin-top: 30px;">
+    <button onclick="comenzarApp()"><i class="fas fa-play"></i> Comenzar</button>
+    <button onclick="showTutorial()" class="btn-secondary"><i class="fas fa-question"></i> Tutorial</button>
+  </div>
+</div>
+
+<button id="menu-toggle" aria-label="Menú navegación" title="Menú navegación" onclick="toggleMenu()">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<div id="menu">
+  <a onclick="mostrarDashboard()"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+  <a onclick="mostrarSeccion('monitoreo')"><i class="fas fa-bug"></i> Monitoreo de Plagas</a>
+  <a onclick="mostrarSeccion('monitoreo-polillas')"><i class="fas fa-moth"></i> Monitoreo de Polillas</a>
+  <a onclick="mostrarSeccion('aplicaciones')"><i class="fas fa-spray-can"></i> Aplicación de Productos</a>
+  <a onclick="mostrarSeccion('riegos')"><i class="fas fa-tint"></i> Riegos y Fertilización</a>
+  <a onclick="mostrarSeccion('aforos')"><i class="fas fa-water"></i> Aforos de Riego</a>
+  <a onclick="mostrarSeccion('poda')"><i class="fas fa-cut"></i> Poda</a>
+  <a onclick="mostrarSeccion('raleos')"><i class="fas fa-apple-alt"></i> Raleos</a>
+  <a onclick="mostrarSeccion('cosechas')"><i class="fas fa-harvest"></i> Cosechas</a>
+  <a onclick="mostrarSeccion('maquinarias')"><i class="fas fa-tractor"></i> Maquinarias</a>
+  <a onclick="mostrarSeccion('analisis')"><i class="fas fa-flask"></i> Análisis</a>
+  <a onclick="mostrarSeccion('globalgap')"><i class="fas fa-certificate"></i> GlobalGAP</a>
+  <a onclick="mostrarMapas()"><i class="fas fa-map-marked-alt"></i> Mapas</a>
+  <a onclick="mostrarPlanificacion()"><i class="fas fa-calendar-alt"></i> Planificación</a>
+  <a onclick="mostrarConfiguracion()"><i class="fas fa-cog"></i> Configuración</a>
+</div>
+
+<div id="app-sections" style="display:none;">
+  <button id="btn-volver" title="Volver al inicio" onclick="volverInicio()"><i class="fas fa-home"></i></button>
+
+  <!-- Nueva sección Dashboard -->
+  <div class="section" id="dashboard">
+    <h2><i class="fas fa-tachometer-alt"></i> Dashboard
+      <button class="btn btn-export" onclick="exportDashboardPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+    </h2>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="changeTab('resumen')">Resumen</div>
+      <div class="tab" onclick="changeTab('actividades')">Actividades Recientes</div>
+      <div class="tab" onclick="changeTab('alertas')">Alertas</div>
+    </div>
+    
+    <div class="tab-content active" id="resumen-tab">
+      <div class="stats-container">
+        <div class="stat-card">
+          <h3>Total Registros</h3>
+          <div class="value" id="total-registros">0</div>
+          <div class="subtext">En todas las secciones</div>
+        </div>
+        <div class="stat-card">
+          <h3>Registros Hoy</h3>
+          <div class="value" id="registros-hoy">0</div>
+          <div class="subtext" id="fecha-hoy"></div>
+        </div>
+        <div class="stat-card">
+          <h3>Fotos Almacenadas</h3>
+          <div class="value" id="total-fotos">0</div>
+          <div class="subtext">En todos los registros</div>
+        </div>
+      </div>
+      
+      <h3><i class="fas fa-chart-bar"></i> Estadísticas por Sección</h3>
+      <div id="stats-by-section" class="stats-container"></div>
+      
+      <!-- Gráficos avanzados -->
+      <div class="chart-container">
+        <h3><i class="fas fa-chart-bar"></i> Actividades por Mes</h3>
+        <canvas id="activitiesChart" height="300"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <h3><i class="fas fa-chart-pie"></i> Distribución de Actividades</h3>
+        <canvas id="distributionChart" height="300"></canvas>
+      </div>
+      
+      <h3><i class="fas fa-calendar-check"></i> Actividades Pendientes</h3>
+      <div id="pending-activities">
+        <p>No hay actividades pendientes configuradas.</p>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="actividades-tab">
+      <div class="search-container">
+        <input type="text" id="search-activities" placeholder="Buscar actividades..." oninput="filterActivities()">
+      </div>
+      <div id="recent-activities-list"></div>
+    </div>
+    
+    <div class="tab-content" id="alertas-tab">
+      <h3><i class="fas fa-exclamation-triangle"></i> Alertas y Recordatorios</h3>
+      <div id="alerts-list">
+        <p>No hay alertas configuradas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Mapas -->
+  <div class="section" id="mapas">
+    <h2><i class="fas fa-map-marked-alt"></i> Mapas de Cuarteles</h2>
+    
+    <div id="map-container" style="height: 500px; width: 100%; margin-bottom: 20px;"></div>
+    
+    <div class="form-row">
+      <div>
+        <label for="coordenadas-cuartel">Coordenadas del Cuartel (Lat, Long)</label>
+        <input type="text" id="coordenadas-cuartel" placeholder="Ej: -34.603722, -58.381592">
+      </div>
+      <div>
+        <label for="nombre-cuartel">Nombre del Cuartel</label>
+        <input type="text" id="nombre-cuartel" placeholder="Ej: Cuartel A1">
+      </div>
+    </div>
+    
+    <button class="btn btn-add" onclick="guardarUbicacion()">
+      <i class="fas fa-save"></i> Guardar Ubicación
+    </button>
+    
+    <div id="cuarteles-list" style="margin-top: 20px;"></div>
+  </div>
+
+  <!-- Sección de Planificación -->
+  <div class="section" id="planificacion">
+    <h2><i class="fas fa-calendar-alt"></i> Planificación de Labores
+      <button class="btn btn-export" onclick="exportPlanificacionPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+      <button class="btn btn-export-excel" onclick="exportPlanificacionExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+    </h2>
+    
+    <div class="form-row">
+      <div>
+        <label for="planificacion-cuartel">Cuartel</label>
+        <select id="planificacion-cuartel">
+          <option value="">Todos los cuarteles</option>
+          <!-- Opciones se llenarán dinámicamente -->
+        </select>
+      </div>
+      <div>
+        <label for="planificacion-tipo">Tipo de Labor</label>
+        <select id="planificacion-tipo">
+          <option value="">Todas las labores</option>
+          <option value="riego">Riego</option>
+          <option value="aplicacion">Aplicación</option>
+          <option value="poda">Poda</option>
+          <option value="cosecha">Cosecha</option>
+          <option value="monitoreo">Monitoreo</option>
+        </select>
+      </div>
+      <div>
+        <label for="planificacion-fecha-inicio">Fecha Inicio</label>
+        <input type="date" id="planificacion-fecha-inicio">
+      </div>
+      <div>
+        <label for="planificacion-fecha-fin">Fecha Fin</label>
+        <input type="date" id="planificacion-fecha-fin">
+      </div>
+    </div>
+    
+    <button class="btn btn-add" onclick="filtrarPlanificacion()"><i class="fas fa-filter"></i> Filtrar</button>
+    <button class="btn btn-add" onclick="nuevaLabor()"><i class="fas fa-plus"></i> Nueva Labor</button>
+    
+    <div id="gantt-container" style="margin-top: 20px; overflow-x: auto;">
+      <div id="gantt-chart" style="min-width: 1000px; height: 500px; position: relative;"></div>
+    </div>
+    
+    <div id="labores-list" style="margin-top: 30px;"></div>
+  </div>
+
+  <!-- Sección de Configuración -->
+  <div class="section" id="configuracion">
+    <h2><i class="fas fa-cog"></i> Configuración</h2>
+    
+    <div class="form-row">
+      <div>
+        <label for="empresa-nombre">Nombre de la Empresa/Finca</label>
+        <input type="text" id="empresa-nombre" placeholder="Ej: Agrícola Los Alamos S.A.">
+      </div>
+      <div>
+        <label for="empresa-logo">Logo (opcional)</label>
+        <div class="file-input-container">
+          <input type="file" id="empresa-logo" accept="image/*">
+          <label for="empresa-logo" class="file-input-label">
+            <i class="fas fa-upload"></i>
+            <span>Subir logo</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <label for="usuarios">Usuarios</label>
+    <select id="usuarios" multiple style="height: auto;">
+      <option value="admin">Administrador</option>
+    </select>
+    <button class="btn btn-add" onclick="addUser()"><i class="fas fa-user-plus"></i> Agregar Usuario</button>
+    
+    <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+    <label>
+      <input type="checkbox" id="notificaciones-activas" checked> Activar notificaciones
+    </label>
+    
+    <h3><i class="fas fa-database"></i> Copia de Seguridad</h3>
+    <button class="btn btn-export" onclick="backupData()"><i class="fas fa-download"></i> Exportar Datos</button>
+    <button class="btn btn-export-excel" onclick="restoreData()"><i class="fas fa-upload"></i> Restaurar Datos</button>
+    
+    <div style="margin-top: 30px;">
+      <button class="btn btn-delete" onclick="resetApp()"><i class="fas fa-trash"></i> Restablecer Aplicación</button>
+    </div>
+  </div>
+
+  <!-- Sección Monitoreo de Plagas -->
+  <div class="section" id="monitoreo">
+    <h2><i class="fas fa-bug"></i> Monitoreo de Plagas
+      <button class="btn btn-export-excel" onclick="exportExcel('monitoreo')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('monitoreo')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('monitoreo')"><i class="fas fa-plus"></i> Agregar Monitoreo</button>
+    <div id="monitoreo-entries"></div>
+    <p><strong><i class="fas fa-info-circle"></i> Estructuras de monitoreo:</strong> Selecciona las estructuras (puedes elegir varias separadas por coma)</p>
+    <p><strong><i class="fas fa-traffic-light"></i> Leyenda semáforo:</strong> Verde = bajo umbral, Amarillo = cercano al umbral, Rojo = sobrepasado.</p>
+  </div>
+
+  <!-- Sección Monitoreo de Polillas -->
+  <div class="section" id="monitoreo-polillas">
+    <h2><i class="fas fa-moth"></i> Monitoreo de Polillas
+      <button class="btn btn-export-excel" onclick="exportExcel('monitoreo-polillas')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('monitoreo-polillas')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <p><strong><i class="fas fa-info-circle"></i> Instrucciones:</strong> Seleccione la polilla, indique presencia/ausencia con los iconos, registre número de trampa y cantidad de ejemplares detectados.</p>
+    <button class="btn btn-add" onclick="addEntry('monitoreo-polillas')"><i class="fas fa-plus"></i> Agregar Registro</button>
+    <div id="monitoreo-polillas-entries"></div>
+  </div>
+
+  <!-- Sección Aplicación de Productos -->
+  <div class="section" id="aplicaciones">
+    <h2><i class="fas fa-spray-can"></i> Aplicación de Productos Fitosanitarios
+      <button class="btn btn-export-excel" onclick="exportExcel('aplicaciones')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('aplicaciones')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('aplicaciones')"><i class="fas fa-plus"></i> Registrar Aplicación</button>
+    <div id="aplicaciones-entries"></div>
+  </div>
+
+  <!-- Sección Riegos y Fertilización -->
+  <div class="section" id="riegos">
+    <h2><i class="fas fa-tint"></i> Riegos y Fertilización
+      <button class="btn btn-export-excel" onclick="exportExcel('riegos')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('riegos')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('riegos')"><i class="fas fa-plus"></i> Agregar Riego</button>
+    <div id="riegos-entries"></div>
+  </div>
+
+  <!-- Sección Aforos de Riego -->
+  <div class="section" id="aforos">
+    <h2><i class="fas fa-water"></i> Aforos de Riego
+      <button class="btn btn-export-excel" onclick="exportExcel('aforos')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('aforos')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('aforos')"><i class="fas fa-plus"></i> Agregar Aforo</button>
+    <div id="aforos-entries"></div>
+  </div>
+
+  <!-- Sección Poda -->
+  <div class="section" id="poda">
+    <h2><i class="fas fa-cut"></i> Poda
+      <button class="btn btn-export-excel" onclick="exportExcel('poda')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('poda')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('poda')"><i class="fas fa-plus"></i> Agregar Poda</button>
+    <div id="poda-entries"></div>
+  </div>
+
+  <!-- Sección Raleos -->
+  <div class="section" id="raleos">
+    <h2><i class="fas fa-apple-alt"></i> Raleos
+      <button class="btn btn-export-excel" onclick="exportExcel('raleos')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('raleos')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('raleos')"><i class="fas fa-plus"></i> Agregar Raleo</button>
+    <div id="raleos-entries"></div>
+  </div>
+
+  <!-- Sección Cosechas -->
+  <div class="section" id="cosechas">
+    <h2><i class="fas fa-harvest"></i> Cosechas
+      <button class="btn btn-export-excel" onclick="exportExcel('cosechas')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('cosechas')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('cosechas')"><i class="fas fa-plus"></i> Agregar Cosecha</button>
+    <div id="cosechas-entries"></div>
+  </div>
+
+  <!-- Sección Maquinarias -->
+  <div class="section" id="maquinarias">
+    <h2><i class="fas fa-tractor"></i> Maquinarias
+      <button class="btn btn-export-excel" onclick="exportExcel('maquinarias')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('maquinarias')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('maquinarias')"><i class="fas fa-plus"></i> Agregar Registro de Maquinaria</button>
+    <div id="maquinarias-entries"></div>
+  </div>
+
+  <!-- Sección Análisis -->
+  <div class="section" id="analisis">
+    <h2><i class="fas fa-flask"></i> Análisis de Suelo y Foliares
+      <button class="btn btn-export-excel" onclick="exportExcel('analisis')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('analisis')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('analisis')"><i class="fas fa-plus"></i> Agregar Análisis</button>
+    <div id="analisis-entries"></div>
+  </div>
+
+  <!-- Sección GlobalGAP -->
+  <div class="section" id="globalgap">
+    <h2><i class="fas fa-certificate"></i> Gestión GlobalGAP
+      <button class="btn btn-export-excel" onclick="exportExcel('globalgap')"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn btn-export" onclick="exportPDF('globalgap')"><i class="fas fa-file-pdf"></i> PDF</button>
+    </h2>
+    <button class="btn btn-add" onclick="addEntry('globalgap')"><i class="fas fa-plus"></i> Agregar Registro</button>
+    <div id="globalgap-entries"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // ========== CONFIGURACIÓN INICIAL ==========
+  // Campos de trazabilidad que van en casi todas las secciones excepto maquinarias
+  const trazabilidadFields = ['Cuartel', 'SDP', 'Especie', 'Variedad'];
+
+  // Campos específicos para cada sección, sin trazabilidad
+  const sectionSpecificFields = {
+    'monitoreo': ['Fecha', 'Plaga', 'Cantidad', 'Estructuras', 'Umbral', 'Observaciones'],
+    'monitoreo-polillas': ['Fecha', 'Polilla', 'Número de trampa', 'Cantidad', 'Presencia', 'Observaciones'],
+    'aplicaciones': ['Fecha', 'Producto', 'Dosis', 'Litros aplicados', 'Hora inicio', 'Hora término', 'Periodo de carencia', 'Hora de reingreso', 'Operador', 'Equipo', 'Observaciones'],
+    'riegos': ['Fecha', 'Tipo de riego', 'Kilos fertilizante aplicado', 'Horas de riego', 'Observaciones'],
+    'aforos': ['Fecha', 'Caudal medido', 'Duración', 'Volumen total', 'Observaciones'],
+    'poda': ['Fecha', 'Tipo de poda', 'Área podada (ha)', 'Personal', 'Observaciones'],
+    'raleos': ['Fecha', 'Tipo de raleo', 'Cantidad frutos por árbol', 'Índice Kilos/ha', 'Observaciones'],
+    'cosechas': ['Fecha', 'Cantidad recolectada (kg)', 'Calidad', 'Personal', 'Observaciones'],
+    'maquinarias': ['Fecha', 'Máquina', 'Registro de mantención', 'Horas de uso', 'Combustible usado', 'Observaciones'],
+    'analisis': ['Fecha', 'Tipo de análisis', 'Laboratorio', 'Resultados', 'Observaciones'],
+    'globalgap': ['Fecha', 'Actividad', 'Responsable', 'Descripción', 'Observaciones'],
+    'planificacion': [] // No necesita campos específicos, usa su propio formato
+  };
+
+  // Iconos para cada sección
+  const sectionIcons = {
+    'monitoreo': 'fas fa-bug',
+    'monitoreo-polillas': 'fas fa-moth',
+    'aplicaciones': 'fas fa-spray-can',
+    'riegos': 'fas fa-tint',
+    'aforos': 'fas fa-water',
+    'poda': 'fas fa-cut',
+    'raleos': 'fas fa-apple-alt',
+    'cosechas': 'fas fa-harvest',
+    'maquinarias': 'fas fa-tractor',
+    'analisis': 'fas fa-flask',
+    'globalgap': 'fas fa-certificate',
+    'mapas': 'fas fa-map-marked-alt',
+    'planificacion': 'fas fa-calendar-alt'
+  };
+
+  // Para guardar datos de cada sección
+  const dataStorage = {};
+  let appConfig = {
+    empresa: 'Mi Empresa Agrícola',
+    logo: null,
+    usuarios: ['admin'],
+    notificaciones: true,
+    cuarteles: {}
+  };
+
+  // Recordatorios programados
+  const reminders = {
+    'monitoreo': { frecuencia: 7, ultimoRecordatorio: null },
+    'aplicaciones': { frecuencia: 14, ultimoRecordatorio: null },
+    'riegos': { frecuencia: 2, ultimoRecordatorio: null },
+    'planificacion': { frecuencia: 1, ultimoRecordatorio: null }
+  };
+
+  // Variables para gráficos y mapa
+  let activitiesChart, distributionChart;
+  let map;
+  let markers = {};
+
+  // Inicializa el almacenamiento para cada sección
+  Object.keys(sectionSpecificFields).forEach(sec => {
+    dataStorage[sec] = [];
+  });
+
+  // ========== FUNCIONES DE INTERFAZ ==========
+  // Función para mostrar la sección y ocultar las demás
+  function mostrarSeccion(nombre) {
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('menu-toggle').classList.remove('open');
+    const secciones = document.querySelectorAll('.section');
+    secciones.forEach(sec => {
+      sec.classList.remove('active');
+    });
+    document.getElementById(nombre).classList.add('active');
+  }
+
+  // Mostrar dashboard con gráficos
+  function mostrarDashboard() {
+    mostrarSeccion('dashboard');
+    setTimeout(() => {
+      updateDashboardStats();
+      renderCharts();
+    }, 300);
+  }
+
+  // Mostrar mapas
+  function mostrarMapas() {
+    mostrarSeccion('mapas');
+    setTimeout(() => {
+      if (!map) initMap();
+      map.invalidateSize();
+    }, 300);
+  }
+
+  // Mostrar planificación
+  function mostrarPlanificacion() {
+    mostrarSeccion('planificacion');
+    actualizarFiltrosPlanificacion();
+    renderGantt();
+    renderLaboresList();
+  }
+
+  // Mostrar configuración
+  function mostrarConfiguracion() {
+    mostrarSeccion('configuracion');
+    updateConfigUI();
+  }
+
+  // Actualizar UI de configuración
+  function updateConfigUI() {
+    document.getElementById('empresa-nombre').value = appConfig.empresa;
+    document.getElementById('notificaciones-activas').checked = appConfig.notificaciones;
+    
+    const usuariosSelect = document.getElementById('usuarios');
+    usuariosSelect.innerHTML = '';
+    appConfig.usuarios.forEach(user => {
+      const option = document.createElement('option');
+      option.value = user;
+      option.textContent = user;
+      usuariosSelect.appendChild(option);
+    });
+  }
+
+  // Función para comenzar la app, oculta la intro y muestra menú y secciones
+  function comenzarApp() {
+    document.getElementById('intro-screen').style.display = 'none';
+    document.getElementById('app-sections').style.display = 'block';
+    document.getElementById('btn-volver').style.display = 'block';
+    loadSavedData();
+    mostrarDashboard();
+  }
+
+  // Volver al inicio (intro)
+  function volverInicio() {
+    saveData(); // Guardar antes de salir
+    document.getElementById('app-sections').style.display = 'none';
+    document.getElementById('intro-screen').style.display = 'block';
+    document.getElementById('btn-volver').style.display = 'none';
+  }
+
+  // Toggle menú hamburguesa
+  function toggleMenu() {
+    const menu = document.getElementById('menu');
+    const toggleBtn = document.getElementById('menu-toggle');
+    if (menu.style.display === 'block') {
+      menu.style.display = 'none';
+      toggleBtn.classList.remove('open');
+    } else {
+      menu.style.display = 'block';
+      toggleBtn.classList.add('open');
+    }
+  }
+
+  // Mostrar notificación
+  function showNotification(message, type = 'success') {
+    if (!appConfig.notificaciones) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'check-circle'}"></i>
+      ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Eliminar después de animación
+    setTimeout(() => {
+      notification.remove();
+    }, 3500);
+  }
+
+  // Cambiar pestañas en dashboard
+  function changeTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    document.querySelector(`.tab[onclick="changeTab('${tabName}')"]`).classList.add('active');
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    if (tabName === 'actividades') {
+      renderRecentActivities();
+    }
+  }
+
+  // ========== PLANIFICACIÓN DE LABORES ==========
+  // Función para actualizar los filtros
+  function actualizarFiltrosPlanificacion() {
+    const cuartelSelect = document.getElementById('planificacion-cuartel');
+    cuartelSelect.innerHTML = '<option value="">Todos los cuarteles</option>';
+    
+    if (appConfig.cuarteles) {
+      Object.keys(appConfig.cuarteles).forEach(cuartel => {
+        const option = document.createElement('option');
+        option.value = cuartel;
+        option.textContent = cuartel;
+        cuartelSelect.appendChild(option);
+      });
+    }
+    
+    // Establecer fechas por defecto (hoy y +7 días)
+    const hoy = new Date();
+    const enUnaSemana = new Date();
+    enUnaSemana.setDate(hoy.getDate() + 7);
+    
+    document.getElementById('planificacion-fecha-inicio').value = hoy.toISOString().split('T')[0];
+    document.getElementById('planificacion-fecha-fin').value = enUnaSemana.toISOString().split('T')[0];
+  }
+
+  // Función para crear nueva labor
+  function nuevaLabor() {
+    const labor = {
+      id: Date.now().toString(),
+      cuartel: '',
+      tipo: '',
+      descripcion: '',
+      fechaInicio: document.getElementById('planificacion-fecha-inicio').value,
+      fechaFin: document.getElementById('planificacion-fecha-fin').value,
+      completada: false,
+      responsable: '',
+      recursos: ''
+    };
+    
+    dataStorage.planificacion.unshift(labor);
+    renderLaborForm(labor);
+  }
+
+  // Función para renderizar el formulario de labor
+  function renderLaborForm(labor, index) {
+    const container = document.getElementById('labores-list');
+    
+    const card = document.createElement('div');
+    card.className = 'labor-card';
+    card.id = `labor-${labor.id}`;
+    
+    card.innerHTML = `
+      <h3>${labor.tipo || 'Nueva Labor'}</h3>
+      <div class="form-row">
+        <div>
+          <label>Cuartel</label>
+          <select onchange="updateLabor('${labor.id}', 'cuartel', this.value)">
+            <option value="">Seleccionar cuartel</option>
+            ${appConfig.cuarteles ? Object.keys(appConfig.cuarteles).map(c => 
+              `<option value="${c}" ${labor.cuartel === c ? 'selected' : ''}>${c}</option>`) : ''}
+          </select>
+        </div>
+        <div>
+          <label>Tipo de Labor</label>
+          <select onchange="updateLabor('${labor.id}', 'tipo', this.value)">
+            <option value="">Seleccionar tipo</option>
+            <option value="riego" ${labor.tipo === 'riego' ? 'selected' : ''}>Riego</option>
+            <option value="aplicacion" ${labor.tipo === 'aplicacion' ? 'selected' : ''}>Aplicación</option>
+            <option value="poda" ${labor.tipo === 'poda' ? 'selected' : ''}>Poda</option>
+            <option value="cosecha" ${labor.tipo === 'cosecha' ? 'selected' : ''}>Cosecha</option>
+            <option value="monitoreo" ${labor.tipo === 'monitoreo' ? 'selected' : ''}>Monitoreo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Fecha Inicio</label>
+          <input type="date" value="${labor.fechaInicio || ''}" 
+                 onchange="updateLabor('${labor.id}', 'fechaInicio', this.value)">
+        </div>
+        <div>
+          <label>Fecha Fin</label>
+          <input type="date" value="${labor.fechaFin || ''}" 
+                 onchange="updateLabor('${labor.id}', 'fechaFin', this.value)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Descripción</label>
+          <input type="text" value="${labor.descripcion || ''}" 
+                 onchange="updateLabor('${labor.id}', 'descripcion', this.value)">
+        </div>
+        <div>
+          <label>Responsable</label>
+          <input type="text" value="${labor.responsable || ''}" 
+                 onchange="updateLabor('${labor.id}', 'responsable', this.value)">
+        </div>
+      </div>
+      <div>
+        <label>Recursos necesarios</label>
+        <textarea rows="2" onchange="updateLabor('${labor.id}', 'recursos', this.value)">${labor.recursos || ''}</textarea>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>
+            <input type="checkbox" ${labor.completada ? 'checked' : ''} 
+                   onchange="updateLabor('${labor.id}', 'completada', this.checked)">
+            Completada
+          </label>
+        </div>
+      </div>
+      <div class="labor-card-actions">
+        <button class="btn btn-delete" onclick="eliminarLabor('${labor.id}')">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+      </div>
+    `;
+    
+    // Si ya existe, reemplazarla
+    const existing = document.getElementById(`labor-${labor.id}`);
+    if (existing) {
+      container.replaceChild(card, existing);
+    } else {
+      container.appendChild(card);
+    }
+    
+    // Actualizar el gráfico Gantt
+    renderGantt();
+  }
+
+  // Función para actualizar una labor
+  function updateLabor(id, field, value) {
+    const labor = dataStorage.planificacion.find(l => l.id === id);
+    if (labor) {
+      labor[field] = value;
+      
+      // Si se actualizaron fechas, renderizar Gantt
+      if (field === 'fechaInicio' || field === 'fechaFin') {
+        renderGantt();
+      }
+    }
+  }
+
+  // Función para eliminar una labor
+  function eliminarLabor(id) {
+    if (confirm('¿Está seguro que desea eliminar esta labor?')) {
+      const index = dataStorage.planificacion.findIndex(l => l.id === id);
+      if (index !== -1) {
+        dataStorage.planificacion.splice(index, 1);
+        document.getElementById(`labor-${id}`)?.remove();
+        renderGantt();
+      }
+    }
+  }
+
+  // Función para filtrar las labores
+  function filtrarPlanificacion() {
+    renderGantt();
+    renderLaboresList();
+  }
+
+  // Función para renderizar el gráfico Gantt
+  function renderGantt() {
+    const contenedor = document.getElementById('gantt-chart');
+    contenedor.innerHTML = '';
+    
+    const fechaInicio = document.getElementById('planificacion-fecha-inicio').value;
+    const fechaFin = document.getElementById('planificacion-fecha-fin').value;
+    const cuartel = document.getElementById('planificacion-cuartel').value;
+    const tipo = document.getElementById('planificacion-tipo').value;
+    
+    // Validar fechas
+    if (!fechaInicio || !fechaFin) {
+      contenedor.innerHTML = '<p style="text-align: center; color: #757575;">Seleccione un rango de fechas válido</p>';
+      return;
+    }
+    
+    // Filtrar labores
+    const laboresFiltradas = dataStorage.planificacion.filter(labor => {
+      // Filtro por fechas
+      if (labor.fechaFin < fechaInicio || labor.fechaInicio > fechaFin) {
+        return false;
+      }
+      
+      // Filtro por cuartel
+      if (cuartel && labor.cuartel !== cuartel) {
+        return false;
+      }
+      
+      // Filtro por tipo
+      if (tipo && labor.tipo !== tipo) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    if (laboresFiltradas.length === 0) {
+      contenedor.innerHTML = '<p style="text-align: center; color: #757575;">No hay labores en el período seleccionado</p>';
+      return;
+    }
+    
+    // Crear encabezado con días
+    const header = document.createElement('div');
+    header.className = 'gantt-header';
+    
+    const startDate = new Date(fechaInicio);
+    const endDate = new Date(fechaFin);
+    const diffDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Añadir etiqueta vacía para alinear con las filas
+    const emptyLabel = document.createElement('div');
+    emptyLabel.className = 'gantt-row-label';
+    emptyLabel.style.width = '200px';
+    header.appendChild(emptyLabel);
+    
+    // Añadir días al encabezado
+    for (let i = 0; i < diffDays; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      const dayElement = document.createElement('div');
+      dayElement.className = 'gantt-header-day';
+      dayElement.textContent = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+      dayElement.style.flex = '1';
+      header.appendChild(dayElement);
+    }
+    
+    contenedor.appendChild(header);
+    
+    // Crear filas para cada labor
+    laboresFiltradas.forEach(labor => {
+      const row = document.createElement('div');
+      row.className = 'gantt-row';
+      
+      // Etiqueta de la fila
+      const label = document.createElement('div');
+      label.className = 'gantt-row-label';
+      label.textContent = `${labor.cuartel || 'Sin cuartel'} - ${getTipoLaborText(labor.tipo)}`;
+      row.appendChild(label);
+      
+      // Contenedor de barras
+      const barsContainer = document.createElement('div');
+      barsContainer.className = 'gantt-row-bars';
+      
+      // Calcular posición y duración de la barra
+      const laborStart = new Date(labor.fechaInicio);
+      const laborEnd = new Date(labor.fechaFin);
+      
+      // Ajustar si la labor comienza antes del rango visible
+      const visibleStart = laborStart < startDate ? startDate : laborStart;
+      
+      // Calcular días desde el inicio del rango
+      const offsetDays = Math.max(0, Math.ceil((visibleStart - startDate) / (1000 * 60 * 60 * 24)));
+      const durationDays = Math.ceil((laborEnd - visibleStart) / (1000 * 60 * 60 * 24)) + 1;
+      
+      // Crear barra de Gantt
+      const task = document.createElement('div');
+      task.className = 'gantt-task';
+      task.style.left = `calc(200px + ${offsetDays * 100}%)`;
+      task.style.width = `${durationDays * 100}%`;
+      task.style.backgroundColor = getColorForTaskType(labor.tipo);
+      task.style.opacity = labor.completada ? '0.7' : '1';
+      task.title = `${labor.descripcion || 'Sin descripción'}\nResponsable: ${labor.responsable || 'No asignado'}`;
+      task.textContent = labor.descripcion || labor.tipo || 'Labor';
+      
+      // Hacer la barra clickable para editar
+      task.onclick = () => {
+        const laborElement = document.getElementById(`labor-${labor.id}`);
+        if (laborElement) {
+          laborElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      
+      barsContainer.appendChild(task);
+      row.appendChild(barsContainer);
+      contenedor.appendChild(row);
+    });
+  }
+
+  // Función auxiliar para obtener texto del tipo de labor
+  function getTipoLaborText(tipo) {
+    const tipos = {
+      'riego': 'Riego',
+      'aplicacion': 'Aplicación',
+      'poda': 'Poda',
+      'cosecha': 'Cosecha',
+      'monitoreo': 'Monitoreo'
+    };
+    return tipos[tipo] || 'Labor';
+  }
+
+  // Función auxiliar para obtener color según tipo de labor
+  function getColorForTaskType(tipo) {
+    const colors = {
+      'riego': '#2196F3',      // Azul
+      'aplicacion': '#4CAF50', // Verde
+      'poda': '#FF9800',       // Naranja
+      'cosecha': '#9C27B0',    // Morado
+      'monitoreo': '#F44336'   // Rojo
+    };
+    return colors[tipo] || '#607D8B'; // Gris azulado por defecto
+  }
+
+  // Función para renderizar la lista de labores
+  function renderLaboresList() {
+    const container = document.getElementById('labores-list');
+    container.innerHTML = '';
+    
+    const fechaInicio = document.getElementById('planificacion-fecha-inicio').value;
+    const fechaFin = document.getElementById('planificacion-fecha-fin').value;
+    const cuartel = document.getElementById('planificacion-cuartel').value;
+    const tipo = document.getElementById('planificacion-tipo').value;
+    
+    // Filtrar labores (misma lógica que en renderGantt)
+    const laboresFiltradas = dataStorage.planificacion.filter(labor => {
+      if (labor.fechaFin < fechaInicio || labor.fechaInicio > fechaFin) return false;
+      if (cuartel && labor.cuartel !== cuartel) return false;
+      if (tipo && labor.tipo !== tipo) return false;
+      return true;
+    });
+    
+    if (laboresFiltradas.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #757575;">No hay labores con los filtros seleccionados</p>';
+      return;
+    }
+    
+    laboresFiltradas.forEach(labor => {
+      renderLaborForm(labor);
+    });
+  }
+
+  // Funciones de exportación
+  function exportPlanificacionPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(16);
+    doc.text('Planificación de Labores', 105, 15, { align: 'center' });
+    
+    const fechaInicio = document.getElementById('planificacion-fecha-inicio').value;
+    const fechaFin = document.getElementById('planificacion-fecha-fin').value;
+    doc.setFontSize(12);
+    doc.text(`Período: ${fechaInicio} al ${fechaFin}`, 105, 22, { align: 'center' });
+    
+    doc.setDrawColor(200);
+    doc.line(20, 30, 190, 30);
+    
+    let y = 40;
+    
+    dataStorage.planificacion.forEach((labor, idx) => {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.setFont(undefined, 'bold');
+      doc.text(`Labor ${idx + 1}: ${getTipoLaborText(labor.tipo)}`, 20, y);
+      y += 7;
+      doc.setFont(undefined, 'normal');
+      
+      doc.text(`Cuartel: ${labor.cuartel || 'N/D'}`, 20, y);
+      y += 7;
+      
+      doc.text(`Fechas: ${labor.fechaInicio} - ${labor.fechaFin}`, 20, y);
+      y += 7;
+      
+      doc.text(`Responsable: ${labor.responsable || 'No asignado'}`, 20, y);
+      y += 7;
+      
+      doc.text(`Estado: ${labor.completada ? 'Completada' : 'Pendiente'}`, 20, y);
+      y += 7;
+      
+      const descLines = doc.splitTextToSize(`Descripción: ${labor.descripcion || 'N/D'}`, 170);
+      doc.text(descLines, 20, y);
+      y += (descLines.length * 7);
+      
+      const recursosLines = doc.splitTextToSize(`Recursos: ${labor.recursos || 'N/D'}`, 170);
+      doc.text(recursosLines, 20, y);
+      y += (recursosLines.length * 7);
+      
+      y += 10;
+    });
+    
+    doc.save(`planificacion_labores_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('Planificación exportada a PDF', 'success');
+  }
+
+  function exportPlanificacionExcel() {
+    const labores = dataStorage.planificacion.map(labor => [
+      labor.cuartel || '',
+      getTipoLaborText(labor.tipo),
+      labor.fechaInicio,
+      labor.fechaFin,
+      labor.descripcion || '',
+      labor.responsable || '',
+      labor.recursos || '',
+      labor.completada ? 'Completada' : 'Pendiente'
+    ]);
+    
+    const ws = XLSX.utils.aoa_to_sheet([
+      ['Cuartel', 'Tipo Labor', 'Fecha Inicio', 'Fecha Fin', 'Descripción', 'Responsable', 'Recursos', 'Estado'],
+      ...labores
+    ]);
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Planificación');
+    
+    XLSX.writeFile(wb, `planificacion_labores_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('Planificación exportada a Excel', 'success');
+  }
+
+  // ========== RECORDATORIOS PROGRAMADOS ==========
+  function checkReminders() {
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    Object.keys(reminders).forEach(section => {
+      const recordatorio = reminders[section];
+      const diasDesdeUltimo = recordatorio.ultimoRecordatorio ? 
+        Math.floor((new Date(hoy) - new Date(recordatorio.ultimoRecordatorio)) / (1000 * 60 * 60 * 24)) : Infinity;
+      
+      if (diasDesdeUltimo >= recordatorio.frecuencia) {
+        showNotification(`Recordatorio: Es hora de realizar ${capitalize(section)}`, 'warning');
+        recordatorio.ultimoRecordatorio = hoy;
+      }
+    });
+  }
+
+  // ========== MAPAS INTERACTIVOS ==========
+  function initMap() {
+    map = L.map('map-container').setView([-34.6037, -58.3816], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    
+    // Cargar ubicaciones guardadas
+    cargarUbicaciones();
+  }
+
+  function guardarUbicacion() {
+    const coords = document.getElementById('coordenadas-cuartel').value.split(',');
+    const nombre = document.getElementById('nombre-cuartel').value;
+    
+    if (coords.length === 2 && nombre) {
+      const lat = parseFloat(coords[0].trim());
+      const lng = parseFloat(coords[1].trim());
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        if (!appConfig.cuarteles) appConfig.cuarteles = {};
+        appConfig.cuarteles[nombre] = { lat, lng };
+        saveData();
+        agregarMarcador(nombre, lat, lng);
+        showNotification(`Ubicación de ${nombre} guardada`, 'success');
+        
+        // Limpiar campos
+        document.getElementById('coordenadas-cuartel').value = '';
+        document.getElementById('nombre-cuartel').value = '';
+      } else {
+        showNotification('Coordenadas inválidas', 'error');
+      }
+    } else {
+      showNotification('Ingrese coordenadas y nombre válidos', 'error');
+    }
+  }
+
+  function cargarUbicaciones() {
+    if (appConfig.cuarteles) {
+      Object.keys(appConfig.cuarteles).forEach(cuartel => {
+        const { lat, lng } = appConfig.cuarteles[cuartel];
+        agregarMarcador(cuartel, lat, lng);
+      });
+    }
+  }
+
+  function agregarMarcador(cuartel, lat, lng) {
+    if (markers[cuartel]) map.removeLayer(markers[cuartel]);
+    
+    markers[cuartel] = L.marker([lat, lng]).addTo(map)
+      .bindPopup(`<b>${cuartel}</b><br>Lat: ${lat}, Long: ${lng}`)
+      .openPopup();
+    
+    actualizarListaCuarteles();
+  }
+
+  function actualizarListaCuarteles() {
+    const lista = document.getElementById('cuarteles-list');
+    lista.innerHTML = '<h3>Cuarteles registrados:</h3>';
+    
+    if (appConfig.cuarteles && Object.keys(appConfig.cuarteles).length > 0) {
+      const ul = document.createElement('ul');
+      ul.style.listStyleType = 'none';
+      ul.style.padding = '0';
+      
+      Object.keys(appConfig.cuarteles).forEach(cuartel => {
+        const li = document.createElement('li');
+        li.style.margin = '5px 0';
+        li.style.padding = '8px';
+        li.style.backgroundColor = '#f5f5f5';
+        li.style.borderRadius = '4px';
+        
+        const { lat, lng } = appConfig.cuarteles[cuartel];
+        li.innerHTML = `
+          <strong>${cuartel}</strong> (${lat.toFixed(4)}, ${lng.toFixed(4)})
+          <button onclick="centrarEnMapa('${cuartel}')" style="float: right; padding: 2px 5px;">
+            <i class="fas fa-map-marker-alt"></i>
+          </button>
+        `;
+        ul.appendChild(li);
+      });
+      
+      lista.appendChild(ul);
+    } else {
+      lista.innerHTML += '<p>No hay cuarteles registrados.</p>';
+    }
+  }
+
+  function centrarEnMapa(cuartel) {
+    if (appConfig.cuarteles && appConfig.cuarteles[cuartel]) {
+      const { lat, lng } = appConfig.cuarteles[cuartel];
+      map.setView([lat, lng], 15);
+      markers[cuartel].openPopup();
+    }
+  }
+
+  // ========== GRÁFICOS AVANZADOS ==========
+  function renderCharts() {
+    renderActivitiesByMonth();
+    renderActivitiesDistribution();
+  }
+
+  function renderActivitiesByMonth() {
+    const ctx = document.getElementById('activitiesChart').getContext('2d');
+    
+    // Preparar datos por mes
+    const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const datosPorMes = Array(12).fill(0);
+    
+    Object.keys(dataStorage).forEach(section => {
+      dataStorage[section].forEach(entry => {
+        const fecha = entry.Fecha ? new Date(entry.Fecha) : new Date(entry.timestamp);
+        const mes = fecha.getMonth();
+        datosPorMes[mes]++;
+      });
+    });
+    
+    if (activitiesChart) activitiesChart.destroy();
+    
+    activitiesChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: meses,
+        datasets: [{
+          label: 'Registros por Mes',
+          data: datosPorMes,
+          backgroundColor: 'rgba(46, 125, 50, 0.7)',
+          borderColor: 'rgba(46, 125, 50, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Cantidad de Registros'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Mes'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderActivitiesDistribution() {
+    const ctx = document.getElementById('distributionChart').getContext('2d');
+    
+    // Preparar datos por sección
+    const secciones = Object.keys(dataStorage).map(capitalize);
+    const datosPorSeccion = Object.values(dataStorage).map(sec => sec.length);
+    
+    // Colores para el gráfico
+    const backgroundColors = [
+      'rgba(46, 125, 50, 0.7)',   // verde
+      'rgba(33, 150, 243, 0.7)',  // azul
+      'rgba(255, 152, 0, 0.7)',    // naranja
+      'rgba(156, 39, 176, 0.7)',   // morado
+      'rgba(244, 67, 54, 0.7)',    // rojo
+      'rgba(0, 188, 212, 0.7)',    // cyan
+      'rgba(76, 175, 80, 0.7)',    // verde claro
+      'rgba(63, 81, 181, 0.7)',    // azul oscuro
+      'rgba(255, 193, 7, 0.7)',    // amarillo
+      'rgba(233, 30, 99, 0.7)',    // rosa
+      'rgba(96, 125, 139, 0.7)'    // gris azulado
+    ];
+    
+    if (distributionChart) distributionChart.destroy();
+    
+    distributionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: secciones,
+        datasets: [{
+          data: datosPorSeccion,
+          backgroundColor: backgroundColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = Math.round((value / total) * 100);
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ========== GESTIÓN DE DATOS ==========
+  // Añadir registro a sección
+  function addEntry(section) {
+    const entry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString()
+    };
+    
+    // Agregar campos de trazabilidad excepto en maquinarias (ya que ahí no están)
+    if (section !== 'maquinarias') {
+      trazabilidadFields.forEach(field => {
+        entry[field] = '';
+      });
+    }
+    
+    // Campos específicos
+    sectionSpecificFields[section].forEach(field => {
+      entry[field] = '';
+    });
+    
+    // Fotos y comentarios vacíos
+    entry.fotos = [];
+    entry.comentariosFotos = [];
+    
+    dataStorage[section].unshift(entry); // Agregar al inicio para que aparezca primero
+    renderEntries(section);
+    showNotification(`Registro agregado a ${capitalize(section)}`, 'success');
+    updateDashboardStats();
+  }
+
+  // Eliminar registro
+  function deleteEntry(section, index) {
+    if (confirm('¿Está seguro que desea eliminar este registro?')) {
+      dataStorage[section].splice(index, 1);
+      renderEntries(section);
+      showNotification('Registro eliminado', 'warning');
+      updateDashboardStats();
+    }
+  }
+
+  // Actualizar valor de campo de registro
+  function updateEntry(section, index, field, value) {
+    dataStorage[section][index][field] = value;
+    
+    // Si es campo de fecha, actualizar timestamp
+    if (field.toLowerCase() === 'fecha') {
+      dataStorage[section][index].timestamp = new Date(value).toISOString() || new Date().toISOString();
+    }
+  }
+
+  // Actualizar comentario foto
+  function updateCommentPhoto(section, index, fotoIndex, value) {
+    if (!dataStorage[section][index].comentariosFotos) {
+      dataStorage[section][index].comentariosFotos = [];
+    }
+    dataStorage[section][index].comentariosFotos[fotoIndex] = value;
+  }
+
+  // Quitar foto
+  function removePhoto(section, entryIndex, fotoIndex) {
+    if (confirm('¿Eliminar esta foto?')) {
+      dataStorage[section][entryIndex].fotos.splice(fotoIndex, 1);
+      if (dataStorage[section][entryIndex].comentariosFotos) {
+        dataStorage[section][entryIndex].comentariosFotos.splice(fotoIndex, 1);
+      }
+      renderEntries(section);
+      updateDashboardStats();
+    }
+  }
+
+  // ========== RENDERIZADO DE DATOS ==========
+  // Renderizar entradas
+  function renderEntries(section) {
+    const container = document.getElementById(section + '-entries');
+    container.innerHTML = '';
+    
+    if (dataStorage[section].length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #757575;">No hay registros en esta sección.</p>';
+      return;
+    }
+    
+    dataStorage[section].forEach((entry, idx) => {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.id = `entry-${entry.id}`;
+
+      // Campos trazabilidad
+      if (section !== 'maquinarias') {
+        trazabilidadFields.forEach(field => {
+          const label = document.createElement('label');
+          label.textContent = field;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(label);
+          div.appendChild(input);
+        });
+      }
+
+      // Campos específicos
+      sectionSpecificFields[section].forEach(field => {
+        if (field === 'Presencia') {
+          // Para Monitoreo Polillas: iconos X roja (presencia) o círculo verde (ausencia)
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+
+          const iconPresencia = document.createElement('span');
+          iconPresencia.className = `icon-presencia ${entry[field] === 'presencia' ? 'active' : ''}`;
+          iconPresencia.title = 'Presencia';
+          iconPresencia.innerHTML = '<i class="fas fa-times-circle"></i>';
+          iconPresencia.onclick = () => {
+            entry[field] = 'presencia';
+            renderEntries(section);
+          };
+
+          const iconAusencia = document.createElement('span');
+          iconAusencia.className = `icon-ausencia ${entry[field] === 'ausencia' ? 'active' : ''}`;
+          iconAusencia.title = 'Ausencia';
+          iconAusencia.innerHTML = '<i class="fas fa-check-circle"></i>';
+          iconAusencia.onclick = () => {
+            entry[field] = 'ausencia';
+            renderEntries(section);
+          };
+
+          div.appendChild(iconPresencia);
+          div.appendChild(iconAusencia);
+        } else if (field === 'Estructuras') {
+          // Para Monitoreo: selección múltiple estructuras
+          const label = document.createElement('label');
+          label.textContent = field + ' (separadas por coma)';
+          div.appendChild(label);
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(input);
+        } else if (field === 'Cantidad' || field === 'Kilos fertilizante aplicado' || field === 'Caudal medido' || 
+                  field === 'Volumen total' || field === 'Área podada (ha)' || field === 'Horas de riego' || 
+                  field === 'Cantidad recolectada (kg)' || field === 'Horas de uso' || field === 'Combustible usado') {
+          // Campos numéricos
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = '0';
+          input.step = field.includes('ha)') ? '0.01' : '1';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(input);
+        } else if (field === 'Fecha') {
+          // Campo de fecha con icono
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          
+          const dateContainer = document.createElement('div');
+          dateContainer.className = 'date-input-container';
+          
+          const input = document.createElement('input');
+          input.type = 'date';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          dateContainer.appendChild(input);
+          
+          const icon = document.createElement('span');
+          icon.className = 'calendar-icon';
+          icon.innerHTML = '<i class="far fa-calendar-alt"></i>';
+          dateContainer.appendChild(icon);
+          
+          div.appendChild(dateContainer);
+        } else if (field.toLowerCase().includes('hora')) {
+          // Campos de hora
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          const input = document.createElement('input');
+          input.type = 'time';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(input);
+        } else if (field === 'Tipo de riego' || field === 'Tipo de poda' || field === 'Tipo de raleo' || 
+                  field === 'Tipo de análisis' || field === 'Producto' || field === 'Polilla' || 
+                  field === 'Plaga' || field === 'Máquina' || field === 'Operador' || field === 'Equipo' ||
+                  field === 'Laboratorio' || field === 'Responsable' || field === 'Actividad' || 
+                  field === 'Calidad' || field === 'Personal' || field === 'Umbral') {
+          // Campos de selección
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          
+          const selectContainer = document.createElement('div');
+          selectContainer.className = 'select-dropdown';
+          
+          const select = document.createElement('select');
+          select.value = entry[field] || '';
+          select.onchange = e => updateEntry(section, idx, field, e.target.value);
+          
+          // Opciones según el campo
+          let options = [];
+          if (field === 'Tipo de riego') options = ['Goteo', 'Aspersión', 'Inundación', 'Microaspersión'];
+          else if (field === 'Tipo de poda') options = ['Formación', 'Fructificación', 'Sanitaria', 'Raleo'];
+          else if (field === 'Tipo de raleo') options = ['Floral', 'Frutal', 'Manual', 'Mecánico'];
+          else if (field === 'Tipo de análisis') options = ['Suelo', 'Foliar', 'Agua', 'Fruto'];
+          else if (field === 'Calidad') options = ['Extra', 'Primera', 'Segunda', 'Descarte'];
+          else if (field === 'Umbral') options = ['Bajo', 'Medio', 'Alto', 'Crítico'];
+          
+          // Opción vacía por defecto
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = `Seleccione ${field.toLowerCase()}`;
+          select.appendChild(defaultOption);
+          
+          // Agregar opciones
+          options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+          });
+          
+          // Establecer valor actual
+          if (entry[field]) {
+            select.value = entry[field];
+          }
+          
+          selectContainer.appendChild(select);
+          const arrow = document.createElement('span');
+          arrow.className = 'select-arrow';
+          arrow.innerHTML = '<i class="fas fa-chevron-down"></i>';
+          selectContainer.appendChild(arrow);
+          
+          div.appendChild(selectContainer);
+        } else if (field.toLowerCase().includes('observaciones') || field.toLowerCase().includes('descripción') || 
+                  field.toLowerCase().includes('resultados') || field.toLowerCase().includes('registro de mantención')) {
+          // Campos de texto largo
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          const textarea = document.createElement('textarea');
+          textarea.rows = 3;
+          textarea.value = entry[field] || '';
+          textarea.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(textarea);
+        } else {
+          // Campos de texto normales
+          const label = document.createElement('label');
+          label.textContent = field;
+          div.appendChild(label);
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = entry[field] || '';
+          input.oninput = e => updateEntry(section, idx, field, e.target.value);
+          div.appendChild(input);
+        }
+      });
+
+      // Mostrar fotos con comentarios, y opción para eliminar cada foto
+      if (entry.fotos && entry.fotos.length) {
+        const fotosTitle = document.createElement('label');
+        fotosTitle.textContent = 'Fotos registradas:';
+        div.appendChild(fotosTitle);
+        
+        const fotosDiv = document.createElement('div');
+        fotosDiv.className = 'fotos-container';
+        
+        entry.fotos.forEach((fotoBase64, i) => {
+          const fotoItem = document.createElement('div');
+          fotoItem.className = 'foto-item';
+          
+          const imgContainer = document.createElement('div');
+          imgContainer.style.position = 'relative';
+          
+          const img = document.createElement('img');
+          img.src = fotoBase64;
+          img.className = 'foto-preview';
+          imgContainer.appendChild(img);
+          
+          const btnRemove = document.createElement('button');
+          btnRemove.innerHTML = '<i class="fas fa-times"></i>';
+          btnRemove.className = 'btn btn-delete';
+          btnRemove.title = 'Eliminar foto';
+          btnRemove.onclick = () => removePhoto(section, idx, i);
+          imgContainer.appendChild(btnRemove);
+          
+          fotoItem.appendChild(imgContainer);
+          
+          const comentario = document.createElement('input');
+          comentario.type = 'text';
+          comentario.placeholder = 'Comentario foto';
+          comentario.value = (entry.comentariosFotos && entry.comentariosFotos[i]) || '';
+          comentario.oninput = e => updateCommentPhoto(section, idx, i, e.target.value);
+          fotoItem.appendChild(comentario);
+          
+          fotosDiv.appendChild(fotoItem);
+        });
+        
+        div.appendChild(fotosDiv);
+      }
+
+      // Input para agregar fotos nuevas (máximo 3)
+      if (!entry.fotos || entry.fotos.length < 3) {
+        const label = document.createElement('label');
+        label.textContent = 'Agregar foto:';
+        div.appendChild(label);
+        
+        const fileContainer = document.createElement('div');
+        fileContainer.className = 'file-input-container';
+        
+        const inputFile = document.createElement('input');
+        inputFile.type = 'file';
+        inputFile.accept = 'image/*';
+        inputFile.capture = 'environment'; // Para móviles, abrir cámara directamente
+        inputFile.onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          // Validar tamaño máximo (5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            showNotification('La foto no debe exceder los 5MB', 'error');
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const base64 = event.target.result;
+            if (!dataStorage[section][idx].fotos) dataStorage[section][idx].fotos = [];
+            if (dataStorage[section][idx].fotos.length < 3) {
+              dataStorage[section][idx].fotos.push(base64);
+              renderEntries(section);
+              updateDashboardStats();
+            } else {
+              showNotification('Solo se permiten hasta 3 fotos por registro', 'warning');
+            }
+          };
+          reader.readAsDataURL(file);
+          e.target.value = ''; // Reset input
+        };
+        
+        const fileLabel = document.createElement('label');
+        fileLabel.className = 'file-input-label';
+        fileLabel.innerHTML = `
+          <i class="fas fa-camera"></i>
+          <span>${entry.fotos ? 'Agregar otra foto' : 'Tomar/Seleccionar foto'}</span>
+          <small>(${entry.fotos ? 3 - entry.fotos.length : 3} restantes)</small>
+        `;
+        
+        fileContainer.appendChild(inputFile);
+        fileContainer.appendChild(fileLabel);
+        div.appendChild(fileContainer);
+      }
+
+      // Botón eliminar registro
+      const btnDelete = document.createElement('button');
+      btnDelete.innerHTML = '<i class="fas fa-trash"></i> Eliminar registro';
+      btnDelete.className = 'btn btn-delete';
+      btnDelete.onclick = () => deleteEntry(section, idx);
+      div.appendChild(btnDelete);
+
+      container.appendChild(div);
+    });
+  }
+
+  // ========== DASHBOARD Y ESTADÍSTICAS ==========
+  // Actualizar estadísticas del dashboard
+  function updateDashboardStats() {
+    // Total registros
+    let totalRegistros = 0;
+    Object.keys(dataStorage).forEach(section => {
+      totalRegistros += dataStorage[section].length;
+    });
+    document.getElementById('total-registros').textContent = totalRegistros;
+    
+    // Registros hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    let registrosHoy = 0;
+    Object.keys(dataStorage).forEach(section => {
+      registrosHoy += dataStorage[section].filter(entry => {
+        return entry.Fecha === hoy || (entry.timestamp && entry.timestamp.split('T')[0] === hoy);
+      }).length;
+    });
+    document.getElementById('registros-hoy').textContent = registrosHoy;
+    
+    // Fecha actual
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es-ES', options);
+    
+    // Total fotos
+    let totalFotos = 0;
+    Object.keys(dataStorage).forEach(section => {
+      dataStorage[section].forEach(entry => {
+        if (entry.fotos) totalFotos += entry.fotos.length;
+      });
+    });
+    document.getElementById('total-fotos').textContent = totalFotos;
+    
+    // Estadísticas por sección
+    const statsBySection = document.getElementById('stats-by-section');
+    statsBySection.innerHTML = '';
+    
+    Object.keys(dataStorage).forEach(section => {
+      if (dataStorage[section].length > 0) {
+        const statCard = document.createElement('div');
+        statCard.className = 'stat-card';
+        
+        const icon = sectionIcons[section] || 'fas fa-list';
+        const sectionName = capitalize(section.replace('-', ' '));
+        
+        statCard.innerHTML = `
+          <h3><i class="${icon}"></i> ${sectionName}</h3>
+          <div class="value">${dataStorage[section].length}</div>
+          <div class="subtext">Registros</div>
+        `;
+        
+        statsBySection.appendChild(statCard);
+      }
+    });
+    
+    // Actualizar también el resumen en la pantalla de inicio
+    document.querySelector('#intro-screen .stat-card .value').textContent = totalRegistros;
+    document.querySelectorAll('#intro-screen .stat-card .value')[1].textContent = Object.keys(sectionSpecificFields).length;
+    document.querySelectorAll('#intro-screen .stat-card .value')[2].textContent = totalFotos;
+  }
+
+  // Renderizar actividades recientes
+  function renderRecentActivities() {
+    const container = document.getElementById('recent-activities-list');
+    container.innerHTML = '';
+    
+    // Recolectar todas las actividades de todas las secciones
+    let allActivities = [];
+    Object.keys(dataStorage).forEach(section => {
+      dataStorage[section].forEach(entry => {
+        allActivities.push({
+          section,
+          entry,
+          timestamp: entry.timestamp || new Date(entry.Fecha || Date.now()).toISOString()
+        });
+      });
+    });
+    
+    // Ordenar por fecha (más reciente primero)
+    allActivities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Mostrar las 20 más recientes
+    const recentActivities = allActivities.slice(0, 20);
+    
+    if (recentActivities.length === 0) {
+      container.innerHTML = '<p style="text-align: center; color: #757575;">No hay actividades recientes.</p>';
+      return;
+    }
+    
+    recentActivities.forEach(activity => {
+      const sectionName = capitalize(activity.section.replace('-', ' '));
+      const icon = sectionIcons[activity.section] || 'fas fa-list';
+      const date = new Date(activity.timestamp).toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      const activityDiv = document.createElement('div');
+      activityDiv.className = 'entry';
+      activityDiv.style.marginBottom = '10px';
+      activityDiv.style.padding = '10px';
+      
+      activityDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="${icon}" style="font-size: 1.2rem; color: var(--primary-color);"></i>
+            <strong>${sectionName}</strong>
+          </div>
+          <small>${date}</small>
+        </div>
+        <div style="margin-top: 8px; font-size: 0.9rem;">
+          ${getActivitySummary(activity.section, activity.entry)}
+        </div>
+      `;
+      
+      activityDiv.onclick = () => {
+        mostrarSeccion(activity.section);
+        // Desplazarse al registro específico
+        setTimeout(() => {
+          const entryElement = document.getElementById(`entry-${activity.entry.id}`);
+          if (entryElement) {
+            entryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            entryElement.style.animation = 'pulse 1s';
+            setTimeout(() => {
+              entryElement.style.animation = '';
+            }, 1000);
+          }
+        }, 300);
+      };
+      
+      container.appendChild(activityDiv);
+    });
+  }
+
+  // Obtener resumen de actividad para mostrar en la lista
+  function getActivitySummary(section, entry) {
+    if (section === 'monitoreo') {
+      return `Plaga: ${entry.Plaga || 'N/D'}, Cantidad: ${entry.Cantidad || 'N/D'}, Cuartel: ${entry.Cuartel || 'N/D'}`;
+    } else if (section === 'monitoreo-polillas') {
+      return `Polilla: ${entry.Polilla || 'N/D'}, Trampa: ${entry['Número de trampa'] || 'N/D'}, Presencia: ${entry.Presencia || 'N/D'}`;
+    } else if (section === 'aplicaciones') {
+      return `Producto: ${entry.Producto || 'N/D'}, Dosis: ${entry.Dosis || 'N/D'}, Operador: ${entry.Operador || 'N/D'}`;
+    } else if (section === 'riegos') {
+      return `Tipo: ${entry['Tipo de riego'] || 'N/D'}, Horas: ${entry['Horas de riego'] || 'N/D'}, Fertilizante: ${entry['Kilos fertilizante aplicado'] || 'N/D'} kg`;
+    } else if (section === 'aforos') {
+      return `Caudal: ${entry['Caudal medido'] || 'N/D'}, Volumen: ${entry['Volumen total'] || 'N/D'}`;
+    } else if (section === 'poda') {
+      return `Tipo: ${entry['Tipo de poda'] || 'N/D'}, Área: ${entry['Área podada (ha)'] || 'N/D'} ha`;
+    } else if (section === 'raleos') {
+      return `Tipo: ${entry['Tipo de raleo'] || 'N/D'}, Frutos/árbol: ${entry['Cantidad frutos por árbol'] || 'N/D'}`;
+    } else if (section === 'cosechas') {
+      return `Cantidad: ${entry['Cantidad recolectada (kg)'] || 'N/D'} kg, Calidad: ${entry.Calidad || 'N/D'}`;
+    } else if (section === 'maquinarias') {
+      return `Máquina: ${entry.Máquina || 'N/D'}, Horas: ${entry['Horas de uso'] || 'N/D'}`;
+    } else if (section === 'analisis') {
+      return `Tipo: ${entry['Tipo de análisis'] || 'N/D'}, Laboratorio: ${entry.Laboratorio || 'N/D'}`;
+    } else if (section === 'globalgap') {
+      return `Actividad: ${entry.Actividad || 'N/D'}, Responsable: ${entry.Responsable || 'N/D'}`;
+    } else if (section === 'planificacion') {
+      return `Labor: ${getTipoLaborText(entry.tipo) || 'N/D'}, Cuartel: ${entry.cuartel || 'N/D'}, Fechas: ${entry.fechaInicio || 'N/D'} - ${entry.fechaFin || 'N/D'}`;
+    }
+    
+    return 'Actividad registrada';
+  }
+
+  // Filtrar actividades en la búsqueda
+  function filterActivities() {
+    const searchTerm = document.getElementById('search-activities').value.toLowerCase();
+    const activities = document.querySelectorAll('#recent-activities-list .entry');
+    
+    activities.forEach(activity => {
+      const text = activity.textContent.toLowerCase();
+      if (text.includes(searchTerm)) {
+        activity.style.display = 'block';
+      } else {
+        activity.style.display = 'none';
+      }
+    });
+  }
+
+  // ========== EXPORTACIÓN DE DATOS ==========
+  // Exportar a PDF (incluye fotos)
+  async function exportPDF(section) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Configuración de la empresa
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.text(appConfig.empresa || 'Agro Gestión App', 105, 15, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.text(`Reporte: ${capitalize(section.replace('-', ' '))}`, 105, 22, { align: 'center' });
+    
+    const date = new Date().toLocaleDateString('es-ES', { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    });
+    doc.text(`Generado: ${date}`, 105, 29, { align: 'center' });
+    
+    doc.setDrawColor(200);
+    doc.line(20, 35, 190, 35);
+    
+    const entries = dataStorage[section];
+    if (entries.length === 0) {
+      doc.setFontSize(14);
+      doc.text('No hay registros para exportar en esta sección.', 20, 45);
+      doc.save(`${section}_reporte.pdf`);
+      showNotification('PDF generado sin datos', 'warning');
+      return;
+    }
+
+    const leftMargin = 20;
+    let y = 45;
+    const pageWidth = 170;
+    const lineHeight = 7;
+
+    doc.setFontSize(10);
+    
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      
+      // Nuevo registro - agregar título
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.setFont(undefined, 'bold');
+      doc.text(`Registro ${i + 1}`, leftMargin, y);
+      y += lineHeight;
+      doc.setFont(undefined, 'normal');
+
+      // Mostrar trazabilidad
+      if (section !== 'maquinarias') {
+        trazabilidadFields.forEach(field => {
+          const val = entry[field] || 'N/D';
+          doc.text(`${field}: ${val}`, leftMargin, y);
+          y += lineHeight;
+          if (y > 250) { doc.addPage(); y = 20; }
+        });
+      }
+
+      // Mostrar campos específicos
+      sectionSpecificFields[section].forEach(field => {
+        let val = entry[field] || 'N/D';
+        // Para presencia en polillas, mostrar texto legible
+        if (field === 'Presencia') {
+          val = val === 'presencia' ? 'Presencia (X roja)' : val === 'ausencia' ? 'Ausencia (círculo verde)' : 'N/D';
+        }
+        if (Array.isArray(val)) val = val.join(', '); // Por si hay arrays
+        
+        // Manejar campos largos (como observaciones)
+        if (val.length > 50 || field.toLowerCase().includes('observaciones') || 
+            field.toLowerCase().includes('descripción') || field.toLowerCase().includes('resultados')) {
+          const lines = doc.splitTextToSize(`${field}: ${val}`, pageWidth);
+          doc.text(lines, leftMargin, y);
+          y += (lines.length * lineHeight);
+        } else {
+          doc.text(`${field}: ${val}`, leftMargin, y);
+          y += lineHeight;
+        }
+        
+        if (y > 250) { doc.addPage(); y = 20; }
+      });
+
+      // Mostrar fotos con comentarios
+      if (entry.fotos && entry.fotos.length > 0) {
+        doc.text('Fotos:', leftMargin, y);
+        y += lineHeight;
+        
+        for (let j = 0; j < entry.fotos.length; j++) {
+          const img = entry.fotos[j];
+          try {
+            // Insertar imagen a escala pequeña para que no ocupe mucho espacio
+            doc.addImage(img, 'JPEG', leftMargin, y, 40, 30);
+            
+            // Comentario foto
+            const comentario = (entry.comentariosFotos && entry.comentariosFotos[j]) || '';
+            if (comentario) {
+              doc.text(`Comentario: ${comentario}`, leftMargin + 45, y + 10);
+            }
+            
+            y += 35;
+          } catch(e) {
+            // Imagen no soportada
+            doc.text('(Imagen no disponible en PDF)', leftMargin, y);
+            y += lineHeight;
+          }
+          
+          if (y > 250) { 
+            doc.addPage(); 
+            y = 20; 
+          }
+        }
+      }
+
+      y += 10;
+      if (y > 250 && i < entries.length -1) { 
+        doc.addPage(); 
+        y = 20; 
+      }
+    }
+
+    doc.save(`${section}_reporte_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('PDF exportado correctamente', 'success');
+  }
+
+  // Exportar dashboard a PDF
+  async function exportDashboardPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Configuración de la empresa
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.text(appConfig.empresa || 'Agro Gestión App', 105, 15, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.text('Reporte de Dashboard', 105, 22, { align: 'center' });
+    
+    const date = new Date().toLocaleDateString('es-ES', { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    });
+    doc.text(`Generado: ${date}`, 105, 29, { align: 'center' });
+    
+    doc.setDrawColor(200);
+    doc.line(20, 35, 190, 35);
+    
+    let y = 45;
+    
+    // Estadísticas generales
+    doc.setFont(undefined, 'bold');
+    doc.text('Resumen General', 20, y);
+    y += 7;
+    doc.setFont(undefined, 'normal');
+    
+    // Total registros
+    let totalRegistros = 0;
+    Object.keys(dataStorage).forEach(section => {
+      totalRegistros += dataStorage[section].length;
+    });
+    doc.text(`Total de registros: ${totalRegistros}`, 20, y);
+    y += 7;
+    
+    // Registros hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    let registrosHoy = 0;
+    Object.keys(dataStorage).forEach(section => {
+      registrosHoy += dataStorage[section].filter(entry => {
+        return entry.Fecha === hoy || (entry.timestamp && entry.timestamp.split('T')[0] === hoy);
+      }).length;
+    });
+    doc.text(`Registros hoy: ${registrosHoy}`, 20, y);
+    y += 7;
+    
+    // Total fotos
+    let totalFotos = 0;
+    Object.keys(dataStorage).forEach(section => {
+      dataStorage[section].forEach(entry => {
+        if (entry.fotos) totalFotos += entry.fotos.length;
+      });
+    });
+    doc.text(`Fotos almacenadas: ${totalFotos}`, 20, y);
+    y += 15;
+    
+    // Estadísticas por sección
+    doc.setFont(undefined, 'bold');
+    doc.text('Estadísticas por Sección', 20, y);
+    y += 7;
+    doc.setFont(undefined, 'normal');
+    
+    Object.keys(dataStorage).forEach(section => {
+      if (dataStorage[section].length > 0) {
+        const sectionName = capitalize(section.replace('-', ' '));
+        doc.text(`${sectionName}: ${dataStorage[section].length} registros`, 20, y);
+        y += 7;
+        
+        if (y > 250) {
+          doc.addPage();
+          y = 20;
+        }
+      }
+    });
+    
+    doc.save(`dashboard_reporte_${new Date().toISOString().split('T')[0]}.pdf`);
+    showNotification('Dashboard exportado a PDF', 'success');
+  }
+
+  // Exportar a Excel - función simplificada para estructura tabular, sin fotos
+  function exportExcel(section) {
+    const entries = dataStorage[section];
+    if (entries.length === 0) {
+      showNotification('No hay datos para exportar', 'warning');
+      return;
+    }
+
+    // Preparar datos para Excel
+    const excelData = [];
+    
+    // Cabecera
+    const header = [];
+    if (section !== 'maquinarias') {
+      trazabilidadFields.forEach(field => {
+        header.push(field);
+      });
+    }
+    sectionSpecificFields[section].forEach(field => {
+      header.push(field);
+    });
+    header.push('N° Fotos');
+    header.push('Comentarios Fotos');
+    
+    excelData.push(header);
+    
+    // Datos
+    entries.forEach(entry => {
+      const row = [];
+      if (section !== 'maquinarias') {
+        trazabilidadFields.forEach(field => {
+          row.push(entry[field] || '');
+        });
+      }
+      sectionSpecificFields[section].forEach(field => {
+        let val = entry[field] || '';
+        if (field === 'Presencia') {
+          val = val === 'presencia' ? 'Presencia' : val === 'ausencia' ? 'Ausencia' : '';
+        }
+        row.push(val);
+      });
+      row.push((entry.fotos && entry.fotos.length) || 0);
+      
+      const comentarios = (entry.comentariosFotos || []).join(' | ');
+      row.push(comentarios);
+      
+      excelData.push(row);
+    });
+    
+    // Crear hoja de cálculo
+    const ws = XLSX.utils.aoa_to_sheet(excelData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, capitalize(section.replace('-', ' ')));
+    
+    // Exportar
+    XLSX.writeFile(wb, `${section}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showNotification('Excel exportado correctamente', 'success');
+  }
+
+  // ========== GESTIÓN DE CONFIGURACIÓN ==========
+  // Agregar usuario
+  function addUser() {
+    const newUser = prompt('Ingrese el nombre del nuevo usuario:');
+    if (newUser && newUser.trim() !== '') {
+      if (!appConfig.usuarios.includes(newUser)) {
+        appConfig.usuarios.push(newUser);
+        updateConfigUI();
+        showNotification('Usuario agregado correctamente', 'success');
+      } else {
+        showNotification('El usuario ya existe', 'error');
+      }
+    }
+  }
+
+  // Respaldar datos
+  function backupData() {
+    const dataToSave = {
+      config: appConfig,
+      data: dataStorage
+    };
+    
+    const dataStr = JSON.stringify(dataToSave);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportName = `agro_gestion_backup_${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportName);
+    linkElement.click();
+    
+    showNotification('Copia de seguridad generada', 'success');
+  }
+
+  // Restaurar datos
+  function restoreData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const data = JSON.parse(event.target.result);
+          
+          if (confirm('¿Está seguro que desea restaurar estos datos? Se sobrescribirán los datos actuales.')) {
+            if (data.config) {
+              appConfig = data.config;
+            }
+            
+            if (data.data) {
+              Object.keys(data.data).forEach(section => {
+                if (dataStorage[section]) {
+                  dataStorage[section] = data.data[section];
+                }
+              });
+            }
+            
+            updateConfigUI();
+            updateDashboardStats();
+            showNotification('Datos restaurados correctamente', 'success');
+          }
+        } catch (error) {
+          showNotification('Error al leer el archivo de respaldo', 'error');
+          console.error(error);
+        }
+      };
+      
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  }
+
+  // Restablecer aplicación
+  function resetApp() {
+    if (confirm('¿Está seguro que desea restablecer la aplicación? Se perderán todos los datos.')) {
+      // Restablecer configuración
+      appConfig = {
+        empresa: 'Mi Empresa Agrícola',
+        logo: null,
+        usuarios: ['admin'],
+        notificaciones: true,
+        cuarteles: {}
+      };
+      
+      // Restablecer datos
+      Object.keys(dataStorage).forEach(section => {
+        dataStorage[section] = [];
+      });
+      
+      // Guardar cambios
+      saveData();
+      updateConfigUI();
+      updateDashboardStats();
+      
+      // Mostrar sección dashboard
+      mostrarSeccion('dashboard');
+      
+      showNotification('Aplicación restablecida', 'success');
+    }
+  }
+
+  // Mostrar tutorial
+  function showTutorial() {
+    alert(`Tutorial de Agro Gestión Pro:\n\n1. Seleccione una sección del menú para comenzar a registrar actividades.\n2. Use el botón "Agregar" para crear nuevos registros.\n3. Complete todos los campos necesarios.\n4. Puede adjuntar hasta 3 fotos por registro.\n5. Exporte los datos a PDF o Excel cuando necesite generar reportes.\n\n¡Explore todas las secciones para aprovechar al máximo la aplicación!`);
+  }
+
+  // ========== FUNCIONES UTILITARIAS ==========
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).replace(/-/g, ' ');
+  }
+
+  // Cargar datos guardados al iniciar
+  function loadSavedData() {
+    const savedData = localStorage.getItem('agroGestionData');
+    const savedConfig = localStorage.getItem('agroGestionConfig');
+    
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      Object.keys(parsedData).forEach(key => {
+        if (dataStorage[key]) {
+          dataStorage[key] = parsedData[key];
+        }
+      });
+    }
+    
+    if (savedConfig) {
+      appConfig = JSON.parse(savedConfig);
+      updateConfigUI();
+    }
+    
+    updateDashboardStats();
+  }
+
+  // Guardar datos periódicamente
+  function saveData() {
+    localStorage.setItem('agroGestionData', JSON.stringify(dataStorage));
+    localStorage.setItem('agroGestionConfig', JSON.stringify(appConfig));
+  }
+
+  // Configurar autoguardado cada 30 segundos
+  setInterval(saveData, 30000);
+  // Verificar recordatorios al iniciar y cada 24 horas
+  setInterval(checkReminders, 24 * 60 * 60 * 1000);
+  checkReminders();
+
+  // Inicializar al cargar la página
+  window.onload = function() {
+    // Verificar si hay datos guardados
+    if (localStorage.getItem('agroGestionData')) {
+      document.getElementById('intro-screen').querySelector('button').textContent = 'Continuar';
+    }
+    
+    // Configurar eventos para guardar configuración
+    document.getElementById('empresa-nombre').addEventListener('change', function() {
+      appConfig.empresa = this.value;
+      saveData();
+    });
+    
+    document.getElementById('notificaciones-activas').addEventListener('change', function() {
+      appConfig.notificaciones = this.checked;
+      saveData();
+    });
+    
+    document.getElementById('empresa-logo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        appConfig.logo = event.target.result;
+        saveData();
+        showNotification('Logo actualizado', 'success');
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+</script>
+
+</body>
+</html>
